@@ -13,25 +13,16 @@ export default function App(){
 
     const [data, setData] = useState<Character[]>([]);
 
-    useEffect((): void => {
-        (async (): Promise<void> => {
-            try{
-                const rawData: Response = await fetch("https://rickandmortyapi.com/api/character");
-                    if (rawData.ok){
-                        const payload = await rawData.json() as {results: Character[] };
-                        setData(payload.results);
-                        console.log("Success fetching data.")
-                    }
-                    else{
-                        throw new Error(`HTTP ${rawData.status}`);
-                    }
-            }
-            catch (e){
-                console.log("The following error was found: " + (e as Error).message)
-            }
-
-        })();
-    }, []);
+    useEffect(() => {
+        async function fetchData(): Promise<void> {
+            const rawData = await fetch("https://rickandmortyapi.com/api/character");
+            const {results} : {results: Character[]} = await rawData.json();
+            setData(results);
+        }
+        fetchData()
+            .then(() => console.log("Data fetched successfully"))
+            .catch((e: Error) => console.log("There was the error: " + e));
+    }, [data.length]);
 
     return(
         <ParentDiv>
