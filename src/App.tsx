@@ -1,30 +1,37 @@
 import RickAndMorty from "./components/RickAndMorty.tsx";
 import styled from "styled-components";
 import {useEffect, useState} from "react";
-import type {Character} from "./interfaces/Charcters.ts";
+import type {Character} from "./interfaces/Character.ts";
 
 const ParentDiv=styled.div`
     width: 80vw;
     margin: auto;
-    border: 5px darkgoldenrod solid;
+    border: 10px #e29578 solid;
 `;
 
 export default function App(){
 
-    // useState Hook to store Data.
     const [data, setData] = useState<Character[]>([]);
 
-    // useEffect Hook for error handling and re-rendering.
-    useEffect(() => {
-        async function fetchData(): Promise<void> {
-            const rawData = await fetch("https://rickandmortyapi.com/api/character");
-            const {results} : {results: Character[]} = await rawData.json();
-            setData(results);
-        }
-        fetchData()
-            .then(() => console.log("Data fetched successfully"))
-            .catch((e: Error) => console.log("There was the error: " + e));
-    }, [data.length]);
+    useEffect((): void => {
+        (async (): Promise<void> => {
+            try{
+                const rawData: Response = await fetch("https://rickandmortyapi.com/api/character");
+                    if (rawData.ok){
+                        const payload = await rawData.json() as {results: Character[] };
+                        setData(payload.results);
+                        console.log("Success fetching data.")
+                    }
+                    else{
+                        throw new Error(`HTTP ${rawData.status}`);
+                    }
+            }
+            catch (e){
+                console.log("The following error was found: " + (e as Error).message)
+            }
+
+        })();
+    }, []);
 
     return(
         <ParentDiv>
